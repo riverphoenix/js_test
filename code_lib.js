@@ -25,7 +25,7 @@
   }
 
   // General function to identify IE9 and below (in order to avoid making AJAX calls that don't work with IE <10)
-  var isIE9OrBelow = function()
+  function isIE9OrBelow()
 {
    return /MSIE\s/.test(navigator.userAgent) && parseFloat(navigator.appVersion.split("MSIE")[1]) < 10;
 }
@@ -99,7 +99,7 @@
   }
 
   // Main function that will be called every time we have a new campaign
-  function run_adobe(campaignID,elementArray,targetArray,linksArray='',personalization_names='',AdobeID='',SnowplowName='_sp_',AdobeAnalytics='',evarnm='eVar4',timeout_soft=1000,timeout_hard=5000,baseURL='http://roninds.ie.persado.com/one/api/v1/') {
+  function run_adobe(campaignID,elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) {
 
 try {
 
@@ -112,7 +112,7 @@ try {
   var urls = adobe_ret.urls;
   var userID = adobe_ret.userID;
 
-  if (isIE9OrBelow===true) { // If IE<10 then just unhide the elements we want to touch [which were hidden using Adobe Target] in order to show control and then exit
+  if (isIE9OrBelow()===true) { // If IE<10 then just unhide the elements we want to touch [which were hidden using Adobe Target] in order to show control and then exit
       window.setTimeout(function() {
           for (var i = 0; i < elementArray.length; i++) {
             $(elementArray[i]).css("visibility", "visible");
@@ -125,7 +125,7 @@ try {
     url: urls,
       success: function( response ) {
       var ret = $.parseJSON(response); // Parse the JSON
-      var variant = ret["variant"]; // Get the variant id to use it for analytics
+      var variant = ret.variant; // Get the variant id to use it for analytics
 
       for (var i = 0; i < elementArray.length; i++) { // Change the elements depending on type
         // Change the src of the image and then unhide
