@@ -1,4 +1,4 @@
-  var PersadoCodeMaxymiser = (function () {
+var PersadoCodeMaxymiser = (function () {
 
   // General function to get all the query->value parameters from the url
       function getQueryVariable(variable)
@@ -99,12 +99,7 @@
 
     function run_maxymiser(campaignID,elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
 
-    try {
-
-      // Hide all elemenets
-      for (var i = 0; i < elementArray.length; i++) {
-        dom.changeStyle(elementArray[i], 'visibility: hidden');
-      }    
+    try {  
       
       // Create the URL properly
       var max_ret = create_maxymiser_url(baseURL,personalization_names,campaignID,AdobeID,SnowplowName);
@@ -118,7 +113,7 @@
       if (isIE9OrBelow()===true) { // If IE<10 then just unhide the elements we want to touch [which were hidden using Adobe Target] in order to show control and then exit
           window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                dom.changeStyle(elementArray[i], 'visibility: visible');
+                document.querySelector(elementArray[i]).style.visibility = 'visible';
               }
             }, timeout_soft);
         } else {
@@ -149,7 +144,7 @@
                 }
                 else { // Change the html and then unhide
                   document.querySelector(elementArray[i]).innerHTML = ret[targetArray[i]];
-                  dom.changeStyle(elementArray[i], 'visibility: visible');
+                  document.querySelector(elementArray[i]).style.visibility = 'visible';
                 }
               }
             
@@ -170,7 +165,7 @@
           } else {
               window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                dom.changeStyle(elementArray[i], 'visibility: visible');
+                document.querySelector(elementArray[i]).style.visibility = 'visible';
               }
             }, timeout_soft);
           }
@@ -179,7 +174,7 @@
         request.onerror = function() {
           window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                dom.changeStyle(elementArray[i], 'visibility: visible');
+                document.querySelector(elementArray[i]).style.visibility = 'visible';
               }
             }, timeout_soft);
         };
@@ -187,7 +182,7 @@
         request.ontimeout = function() {
           window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                dom.changeStyle(elementArray[i], 'visibility: visible');
+                document.querySelector(elementArray[i]).style.visibility = 'visible';
               }
             }, timeout_soft);
       };
@@ -198,7 +193,7 @@
       } catch(errout){ // In case of any error just unhide elements to show the control
         window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                dom.changeStyle(elementArray[i], 'visibility: visible');
+                document.querySelector(elementArray[i]).style.visibility = 'visible';
               }
             }, timeout_soft);
       }
