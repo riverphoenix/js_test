@@ -50,15 +50,7 @@ var PersadoCodeMaxymiser = (function () {
         var variant_enter = getQueryVariable("variant_code"); // IF variant is specified on query parameter then use it to serve the copy [mainly for QA]
         var MID = "0"; // Marketing Cloud ID
         var snowID = "0"; // Snowplow cookie ID if present
-        var userID = "0"; // Adobe ID from mbox cookie
         var pers_param = ""; // Personalization parameters string for URL construction
-        
-        try {
-          var userID = campaign.getData('persadoId');  // Get the userID from Maxymiser
-          if (typeof userID == 'undefined') {  userID = generateUUID();   } // If it is empty, then generate a new one
-          campaign.setData('persadoId', userID );
-        } catch(errin){
-        }
             
         try {
           if ((AdobeID)&&(typeof Visitor !== "undefined")) {
@@ -90,14 +82,13 @@ var PersadoCodeMaxymiser = (function () {
         }
         
         return { // Return all the information
-            userID: userID,
             MID: MID,
             snowID: snowID,
             urls: urls
         };
       }
 
-    function run_maxymiser(campaignID,elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
+    function run_maxymiser(campaignID,userID, elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
 
     try {  
       
@@ -108,7 +99,6 @@ var PersadoCodeMaxymiser = (function () {
       var MID = max_ret.MID;
       var snowID = max_ret.snowID;
       var urls = max_ret.urls;
-      var userID = max_ret.userID;
 
       if (isIE9OrBelow()===true) { // If IE<10 then just unhide the elements we want to touch [which were hidden using Adobe Target] in order to show control and then exit
           window.setTimeout(function() {
@@ -199,6 +189,6 @@ var PersadoCodeMaxymiser = (function () {
       }
     }
  
-  return { run_maxymiser: run_maxymiser  }
+  return { run_maxymiser: run_maxymiser, generateUUID: generateUUID }
   
   })();
