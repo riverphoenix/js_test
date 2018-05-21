@@ -45,7 +45,7 @@ var PersadoCodeMaxymiser = (function () {
       }
 
       // Get all the IDs we need to track properly and construct the Enterprise API URL we will call
-      function create_maxymiser_url(baseURL,personalization_names,campaignID,AdobeID,SnowplowName) {
+      function create_maxymiser_url(baseURL,userID,personalization_names,campaignID,AdobeID,SnowplowName) {
 
         var variant_enter = getQueryVariable("variant_code"); // IF variant is specified on query parameter then use it to serve the copy [mainly for QA]
         var MID = "0"; // Marketing Cloud ID
@@ -88,12 +88,12 @@ var PersadoCodeMaxymiser = (function () {
         };
       }
 
-    function run_maxymiser(campaignID,userID, elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
+    function run_maxymiser(campaignID,userID,elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
 
     try {  
       
       // Create the URL properly
-      var max_ret = create_maxymiser_url(baseURL,personalization_names,campaignID,AdobeID,SnowplowName);
+      var max_ret = create_maxymiser_url(baseURL,userID,personalization_names,campaignID,AdobeID,SnowplowName);
 
       // Assign all the IDs to variables
       var MID = max_ret.MID;
