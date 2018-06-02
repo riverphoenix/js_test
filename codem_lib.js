@@ -45,13 +45,13 @@ var PersadoCodeMaxymiser = (function () {
       }
 
       // Get all the IDs we need to track properly and construct the Enterprise API URL we will call
-      function create_maxymiser_url(baseURL,userID,personalization_names,campaignID,AdobeID,SnowplowName) {
+      function create_maxymiser_url(baseURL,userID, personalization_names,campaignID,AdobeID,SnowplowName) {
 
         var variant_enter = getQueryVariable("variant_code"); // IF variant is specified on query parameter then use it to serve the copy [mainly for QA]
         var MID = "0"; // Marketing Cloud ID
         var snowID = "0"; // Snowplow cookie ID if present
         var pers_param = ""; // Personalization parameters string for URL construction
-            
+                    
         try {
           if ((AdobeID)&&(typeof Visitor !== "undefined")) {
             var visitor = Visitor.getInstance(AdobeID); // Get Marketing Cloud ID using the customer credential
@@ -88,22 +88,23 @@ var PersadoCodeMaxymiser = (function () {
         };
       }
 
-    function run_maxymiser(campaignID,userID,elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
+    function run_maxymiser(campaignID,userID, elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,waitApply,baseURL) { 
 
     try {  
       
       // Create the URL properly
-      var max_ret = create_maxymiser_url(baseURL,userID,personalization_names,campaignID,AdobeID,SnowplowName);
+      var max_ret = create_maxymiser_url(baseURL,userID, personalization_names,campaignID,AdobeID,SnowplowName);
 
       // Assign all the IDs to variables
       var MID = max_ret.MID;
       var snowID = max_ret.snowID;
       var urls = max_ret.urls;
-
+      
       if (isIE9OrBelow()===true) { // If IE<10 then just unhide the elements we want to touch [which were hidden using Adobe Target] in order to show control and then exit
           window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                document.querySelector(elementArray[i]).style.visibility = 'visible';
+                //document.querySelector(elementArray[i]).style.visibility = 'visible';
+                dom.changeStyle(elementArray[i], 'visibility: visible');
               }
             }, timeout_soft);
         } else {
@@ -124,17 +125,24 @@ var PersadoCodeMaxymiser = (function () {
                       
                       var nImage = new Image();
                       var oldImage = document.querySelector(elementArray[i]);
-                      nImage.addEventListener('load', function() {  oldImage.style.visibility = 'visible'; },false);
+                      nImage.addEventListener('load', function() {  
+                        window.setTimeout(function() { oldImage.style.visibility = 'visible'; }, waitApply);
+                      },false);
                       nImage.src = ret[targetArray[i]];
                       oldImage.src = nImage.src;
       
                   }
                 else if (targetArray[i] == '.js') { // Run the JS code if javascript
-                  eval(ret[targetArray[i]]);
+                  window.setTimeout(function() {
+                    eval(ret[targetArray[i]]);
+                   }, waitApply);
                 }
                 else { // Change the html and then unhide
                   document.querySelector(elementArray[i]).innerHTML = ret[targetArray[i]];
+                  window.setTimeout(function() {
                   document.querySelector(elementArray[i]).style.visibility = 'visible';
+                  //dom.changeStyle(elementArray[i], 'visibility: visible');
+                }, waitApply);
                 }
               }
             
@@ -155,7 +163,8 @@ var PersadoCodeMaxymiser = (function () {
           } else {
               window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                document.querySelector(elementArray[i]).style.visibility = 'visible';
+                //document.querySelector(elementArray[i]).style.visibility = 'visible';
+                dom.changeStyle(elementArray[i], 'visibility: visible');
               }
             }, timeout_soft);
           }
@@ -164,7 +173,8 @@ var PersadoCodeMaxymiser = (function () {
         request.onerror = function() {
           window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                document.querySelector(elementArray[i]).style.visibility = 'visible';
+                //document.querySelector(elementArray[i]).style.visibility = 'visible';
+                dom.changeStyle(elementArray[i], 'visibility: visible');
               }
             }, timeout_soft);
         };
@@ -172,7 +182,8 @@ var PersadoCodeMaxymiser = (function () {
         request.ontimeout = function() {
           window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                document.querySelector(elementArray[i]).style.visibility = 'visible';
+                //document.querySelector(elementArray[i]).style.visibility = 'visible';
+                dom.changeStyle(elementArray[i], 'visibility: visible');
               }
             }, timeout_soft);
       };
@@ -183,7 +194,8 @@ var PersadoCodeMaxymiser = (function () {
       } catch(errout){ // In case of any error just unhide elements to show the control
         window.setTimeout(function() {
               for (var i = 0; i < elementArray.length; i++) {
-                document.querySelector(elementArray[i]).style.visibility = 'visible';
+                //document.querySelector(elementArray[i]).style.visibility = 'visible';
+                dom.changeStyle(elementArray[i], 'visibility: visible');
               }
             }, timeout_soft);
       }
