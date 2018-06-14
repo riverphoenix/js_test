@@ -1,5 +1,18 @@
   var PersadoCodeOptimizely = (function () {
 
+    // General function to get the target from our touchpoint API
+  function getTouchpointTarget(json_in, target_in)
+      {
+        for (var i = 0; i < json_in.length; i++) { //iterate amongst all objects
+            if (json_in[i]['name'] == target_in) {
+              return {
+                typeS: json_in[i]['type'],
+                contentS: json_in[i]['content']
+                };
+            }
+          }
+      }
+
   // General function to get all the query->value parameters from the url
       function getQueryVariable(variable)
       {
@@ -73,10 +86,10 @@
         }
 
         if (variant_enter) { // Create the URL with all the parameters set. We use the Adobe ID as the ID that will determine the random shuffling and also pass all additional query parameters for fontsize, name and variant_code
-          urls = baseURL + campaignID +"/all?user_id="+userID+"&mid="+MID+"&snowID="+snowID+pers_param+"&variant_code="+variant_enter; 
+          urls = baseURL + campaignID +"/variant.json?user_id="+userID+"&mid="+MID+"&snowID="+snowID+pers_param+"&variant_code="+variant_enter; 
         }
         else {
-          urls = baseURL + campaignID +"/all?user_id="+userID+"&mid="+MID+"&snowID="+snowID+pers_param;
+          urls = baseURL + campaignID +"/variant.json?user_id="+userID+"&mid="+MID+"&snowID="+snowID+pers_param;
         }
         
         return { // Return all the information
@@ -116,26 +129,28 @@
           request.onload = function() {
           if (request.status >= 200 && request.status < 400) {
               var ret = JSON.parse(request.responseText); // Parse the JSON
-              var variant = ret.variant; // Get the variant id to use it for analytics
+              var variant = ret.variant_code; // Get the variant id to use it for analytics
 
               window["optimizely"].push({ "type": "user", "attributes": { "PersadoVariant": variant} }); // Add the variant to Optimizely tracking
 
               for (var i = 0; i < elementArray.length; i++) { // Change the elements depending on type
+                targJS = getTouchpointTarget(ret.touchpoints, targetArray[i]); // Get our touchpoint
+                
                 // Change the src of the image and then unhide
-                if ((targetArray[i].indexOf('.jpeg') > -1)||(targetArray[i].indexOf('.jpg') > -1)||(targetArray[i].indexOf('.png') > -1)||(targetArray[i].indexOf('.gif') > -1)) {
+                if ((targJS.typeS.indexOf('jpeg') > -1)||(targJS.typeS.indexOf('jpg') > -1)||(targJS.typeS.indexOf('png') > -1)||(targJS.typeS.indexOf('gif') > -1)) {                     
                       
                       var nImage = new Image();
                       var oldImage = document.querySelector(elementArray[i]);
                       nImage.addEventListener('load', function() {  oldImage.style.visibility = 'visible'; },false);
-                      nImage.src = ret[targetArray[i]];
+                      nImage.src = targJS.contentS;
                       oldImage.src = nImage.src;
       
                   }
-                else if (targetArray[i] == '.js') { // Run the JS code if javascript
-                  eval(ret[targetArray[i]]);
+                else if (targJS.typeS == 'application/javascript') { // Run the JS code if javascript
+                  eval(targJS.contentS);
                 }
                 else { // Change the html and then unhide
-                  document.querySelector(elementArray[i]).innerHTML = ret[targetArray[i]];
+                  document.querySelector(elementArray[i]).innerHTML = targJS.contentS;
                   document.querySelector(elementArray[i]).style.visibility = 'visible';
                 }
               }
