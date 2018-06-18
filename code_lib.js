@@ -120,7 +120,7 @@ var PersadoCodeAdobe = (function () {
       }
 
       // Main function that will be called every time we have a new campaign
-      function run_adobe(campaignID,elementArray,targetArray,linksArray,personalization_names,AdobeID,SnowplowName,AdobeAnalytics,evarnm,timeout_soft,timeout_hard,baseURL) { 
+      function run_adobe(campaignID,phase_ID, elementArray,targetArray,linksArray,personalization_names,AdobeID,GA_ID,SnowplowName,AdobeAnalytics,evarnm,GA_dimname,timeout_soft,timeout_hard,baseURL) { 
 
     try {
 
@@ -151,6 +151,7 @@ var PersadoCodeAdobe = (function () {
           if (request.status >= 200 && request.status < 400) { //Check if no errors
               var ret = JSON.parse(request.responseText); // Parse the JSON
               var variant = ret.variant_code; // Get the variant id to use it for analytics
+              var full_variant = campaignID + "_" + phase_ID + "_" + variant; // full saved info for campign, phase and variant
 
               for (var i = 0; i < elementArray.length; i++) { // Change the elements depending on type
                 targJS = getTouchpointTarget(ret.touchpoints, targetArray[i]); // Get our touchpoint
@@ -182,8 +183,18 @@ var PersadoCodeAdobe = (function () {
                 window.setTimeout(function(){ // This is used for Adobe Analytics. Save our variant ID on an eVar so we can track in in analytics across all pages. We do a Timeout in order to ensure the analytics js has loaded before our call
                   var s_account=AdobeAnalytics;
                   var s=s_gi(s_account);
-                  s[evarnm] = variant;
-                  s.tl(true,'o',variant);
+                  s[evarnm] = full_variant;
+                  s.tl(true,'o',full_variant);
+                },timeout_soft);
+              } catch(errout) { }
+
+              try {
+                window.setTimeout(function(){ // This is used for Google Analytics. Save our variant ID on an eVar so we can track in in analytics across all pages. We do a Timeout in order to ensure the analytics js has loaded before our call
+                  if (window.ga && ga.create) {
+                    ga('create', GA_ID, 'auto');
+                    ga('set',GA_dimname,full_variant);
+                    ga('send', 'pageview');
+                  }
                 },timeout_soft);
               } catch(errout) { }
 
